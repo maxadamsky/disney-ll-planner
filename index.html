@@ -180,7 +180,7 @@
   <button class="tab active" data-view="parks" onclick="switchView('parks')">📋 Parks</button>
   <button class="tab" data-view="picks" onclick="switchView('picks')">✅ My Picks</button>
   <button class="tab" data-view="quick" onclick="switchView('quick')">⚡ Recs</button>
-  <button class="tab" data-view="timeline" onclick="switchView('timeline')">📅 Dates</button>
+  <button class="tab" data-view="timeline" onclick="switchView('timeline')">📅 Itinerary</button>
 </div>
 
 <div class="content">
@@ -224,13 +224,14 @@
   <!-- TIMELINE VIEW -->
   <div id="view-timeline" class="hidden">
     <div class="tl-card">
-      <div class="tl-header"><div class="tl-title">Booking Timeline</div></div>
-      <div class="tl-row"><div class="tl-dot urgent"></div><div><div class="tl-date urgent">Apr 18 (Sat)</div><div class="tl-action">7 AM ET — Booking window opens for ALL park days</div><div class="tl-detail">Book Multi Pass + Single Pass for Apr 26-28. Do all 3 days at once!</div></div></div>
-      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 25 (Sat)</div><div class="tl-action">Arrive Orlando, check in Saratoga Springs</div><div class="tl-detail">Review/modify LL selections in My Disney Experience app</div></div></div>
-      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 26 (Sun)</div><div class="tl-action">Animal Kingdom — 8 AM</div><div class="tl-detail">Use first LL early, keep booking replacements</div></div></div>
-      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 27 (Mon)</div><div class="tl-action">HS (Schusters AM) + EPCOT (Everyone PM) + 🌙 EPCOT evening (Adults)</div><div class="tl-detail">Cape May dinner @ 5 PM → Adults walk to EPCOT ~6:30 PM for Guardians Single Pass</div></div></div>
-      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 28 (Tue)</div><div class="tl-action">Magic Kingdom — 8 AM</div><div class="tl-detail">Last park day! Use LL aggressively.</div></div></div>
-      <div class="tl-tip"><strong>Key:</strong> As Saratoga Springs guests, you book 7 days before check-in. Since check-in is Apr 25, your window opens <strong>Apr 18 at 7:00 AM Eastern</strong>. Set an alarm — Tier 1 MK rides (Peter Pan, Jungle Cruise) book up fast!</div>
+      <div class="tl-header"><div class="tl-title">🎂 Trip Itinerary</div></div>
+      <div class="tl-row"><div class="tl-dot urgent"></div><div><div class="tl-date urgent">Apr 18 (Sat)</div><div class="tl-action">🚨 7 AM ET — Booking window opens</div><div class="tl-detail">Book Multi Pass + Single Pass for Apr 26-28 in My Disney Experience. Do all 3 days at once!</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 25 (Sat)</div><div class="tl-action">Arrive Orlando · Check in Saratoga Springs</div><div class="tl-detail">Review/modify LL selections in the app</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 26 (Sun)</div><div class="tl-action">🌿 Animal Kingdom — 8:00–11:00 AM · Everyone</div><div class="tl-detail">Rope-drop Kilimanjaro Safaris. Use first LL early, keep booking replacements.</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 27 (Mon)</div><div class="tl-action">🎬 Hollywood Studios AM (Schusters) → 🌐 EPCOT 12:00–3:00 PM (Everyone)</div><div class="tl-detail">🍽️ Cape May dinner @ 5 PM → 🌙 Adults walk to EPCOT ~6:30 PM for Guardians Single Pass</div></div></div>
+      <div class="tl-row"><div class="tl-dot urgent"></div><div><div class="tl-date urgent">Apr 28 (Tue) 🎂 Carol's 70th</div><div class="tl-action">🏰 Magic Kingdom 8:00–11:00 AM → rest → 🎉 Birthday Dinner</div><div class="tl-detail"><strong>Boma — Flavors of Africa @ 6:35 PM</strong> at Animal Kingdom Lodge. African-inspired buffet with plenty for kids and adventurous eaters alike. Leave MK by 11 AM, rest at Saratoga Springs, then head to AKL (~15-min drive) — plan to leave by 6:00 PM.</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 29 (Wed)</div><div class="tl-action">Depart Orlando</div><div class="tl-detail">Check out by 11 AM. Safe travels!</div></div></div>
+      <div class="tl-tip"><strong>Key:</strong> As Saratoga Springs guests, your booking window opens <strong>Apr 18 at 7:00 AM Eastern</strong> (7 days before check-in). Set an alarm — Tier 1 MK rides (Peter Pan, Jungle Cruise) book up fast!</div>
     </div>
   </div>
 
@@ -267,17 +268,12 @@
     </div>
   </div>
 
-  <!-- Dinner Note -->
-  <div class="dinner-box">
-    <div class="dinner-title">🍽️ Tue Apr 28 — Last Night Dinner</div>
-    <div class="dinner-text">✅ <strong>Boma — Flavors of Africa @ 6:35 PM</strong> · Animal Kingdom Lodge. African-inspired buffet with tons of options for kids and adventurous eaters alike. Tip: Leave Magic Kingdom by 11 AM, rest up at Saratoga Springs, then head to AKL. It's about a 15-min drive/bus — plan to leave by 6:00 PM.</div>
-  </div>
 </div>
 
 <script>
 const PARKS = [
   {
-    id: "ak", name: "Animal Kingdom", date: "Sun, Apr 26", time: "8:00 – 11:00 AM",
+    id: "ak", name: "Animal Kingdom", date: "Sun, Apr 26", time: "",
     group: "Everyone", icon: "🌿", hasTiers: false,
     notes: "AK has NO tiers — pick any 3 from the Multi Pass list. With only 3 hours and little ones, focus on the top family rides. DINOSAUR is permanently closed. Consider skipping Multi Pass here and just rope-dropping — experts say AK is the weakest park for LL value.",
     booking: "Book Apr 18 at 7 AM ET · Multi Pass: $22/person · Flight of Passage Single: ~$16-19/person",
@@ -327,7 +323,7 @@ const PARKS = [
     ]
   },
   {
-    id: "ep", name: "EPCOT", date: "Mon, Apr 27", time: "12:00 – 3:00 PM",
+    id: "ep", name: "EPCOT", date: "Mon, Apr 27", time: "",
     group: "Everyone", icon: "🌐", hasTiers: true,
     notes: "Only 3 hours here (12–3 PM). Flower & Garden Festival will be happening — enjoy the topiaries! Experts say EPCOT is manageable without LL, but Frozen Ever After and Remy get long waits. With limited time, pre-booking is smart. 🌙 EVENING OPTION: Adults may return after Cape May dinner (~6:30 PM) — Beach Club is a 5-min walk to EPCOT's back entrance. Book a Guardians Single Pass with an evening return window!",
     booking: "Book Apr 18 at 7 AM ET · Multi Pass: $26/person · Guardians Single Pass: ~$19-22/person",
@@ -353,7 +349,7 @@ const PARKS = [
     ]
   },
   {
-    id: "mk", name: "Magic Kingdom", date: "Tue, Apr 28", time: "8:00 – 11:00 AM",
+    id: "mk", name: "Magic Kingdom", date: "Tue, Apr 28", time: "",
     group: "Everyone", icon: "🏰", hasTiers: true,
     notes: "Your LAST park day — make it count! Big Thunder Mountain is CLOSED (reopens May 3). With 3 hours and Early Entry at 8 AM, rope drop a Tier 1 ride then use LL for the rest. MK is where Lightning Lane Multi Pass has the MOST value.",
     booking: "Book Apr 18 at 7 AM ET — MK Tier 1 books fast! · Multi Pass: $35/person · TRON Single: ~$20-22 · Mine Train Single: ~$15-18",
@@ -517,7 +513,7 @@ function renderParks() {
           <span class="park-icon">${park.icon}</span>
           <div class="park-info">
             <div class="park-name">${park.name}${(sel.multi.length+sel.single.length)>0?' <span style="color:#a78bfa;font-size:14px;">('+( sel.multi.length+sel.single.length)+' picked)</span>':''}</div>
-            <div class="park-meta">${park.date} · ${park.time} · <span class="group">${park.group}</span></div>
+            <div class="park-meta">${park.date}${park.time ? ' · ' + park.time : ''} · <span class="group">${park.group}</span></div>
           </div>
           <div class="stat"><div class="stat-num green">${park.familyCount}</div><div class="stat-label">ALL AGES</div></div>
           <div class="stat"><div class="stat-num amber">${park.adultCount}</div><div class="stat-label">RIDER SW</div></div>
