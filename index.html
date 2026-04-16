@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lightning Lane Planner — Schuster × Adamsky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #0a0e1a 0%, #111827 50%, #0f172a 100%);
+    color: #e2e8f0;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }
+
+  .header {
+    padding: 28px 20px 20px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.1) 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .header-label { font-size: 13px; letter-spacing: 3px; color: #60a5fa; font-family: 'Outfit', sans-serif; font-weight: 600; margin-bottom: 4px; }
+  .header-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header-sub { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .header-warn { margin-top: 8px; display: inline-block; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 6px 14px; font-size: 12px; color: #fbbf24; }
+
+  .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(15,23,42,0.5); }
+  .tab {
+    flex: 1; padding: 12px 8px; background: transparent; border: none;
+    border-bottom: 2px solid transparent; color: #64748b; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .tab.active { background: rgba(59,130,246,0.12); border-bottom-color: #3b82f6; color: #60a5fa; }
+
+  .content { padding: 16px 12px 40px; max-width: 640px; margin: 0 auto; }
+  .hint { font-size: 12px; color: #64748b; margin-bottom: 12px; text-align: center; }
+
+  /* Park Card */
+  .park-card {
+    background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+    backdrop-filter: blur(12px);
+  }
+  .park-header {
+    padding: 16px 18px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s;
+  }
+  .park-header:hover { background: rgba(255,255,255,0.02); }
+  .park-header.active { background: rgba(59, 130, 246, 0.08); }
+  .park-icon { font-size: 28px; }
+  .park-info { flex: 1; }
+  .park-name { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: #f1f5f9; }
+  .park-meta { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+  .park-meta .group { color: #60a5fa; }
+  .stat { text-align: right; }
+  .stat + .stat { margin-left: 8px; }
+  .stat-num { font-size: 22px; font-weight: 700; font-family: 'Outfit', sans-serif; }
+  .stat-num.green { color: #10b981; }
+  .stat-num.amber { color: #f59e0b; }
+  .stat-label { font-size: 10px; color: #94a3b8; letter-spacing: 0.5px; }
+  .chevron { color: #64748b; font-size: 18px; transition: transform 0.2s; margin-left: 4px; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .park-body { border-top: 1px solid rgba(255,255,255,0.06); }
+  .strategy-box { padding: 12px 18px; background: rgba(59, 130, 246, 0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .strategy-label { font-size: 12px; font-weight: 700; color: #60a5fa; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .strategy-text { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .booking-box { padding: 8px 18px; background: rgba(16, 185, 129, 0.06); border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #6ee7b7; }
+
+  .tier-header {
+    padding: 8px 14px; font-family: 'Outfit', sans-serif; font-size: 12px;
+    font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #e2e8f0;
+  }
+  .tier-header.t1 { background: rgba(139, 92, 246, 0.12); }
+  .tier-header.t2 { background: rgba(71, 85, 105, 0.3); }
+  .tier-header.notier { background: rgba(71, 85, 105, 0.3); }
+  .tier-header.single { background: rgba(245, 158, 11, 0.12); }
+
+  .ride-row { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: background 0.15s; }
+  .ride-row:hover { background: rgba(255,255,255,0.03); }
+  .ride-row.expanded { background: rgba(255,255,255,0.04); }
+  .ride-row.closed { opacity: 0.4; }
+  .ride-top { display: flex; align-items: center; gap: 8px; }
+  .priority {
+    width: 20px; height: 20px; border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+    color: #fff; flex-shrink: 0;
+  }
+  .ride-name { flex: 1; font-size: 14px; font-weight: 500; color: #e2e8f0; }
+  .ride-height { font-size: 11px; color: #94a3b8; font-family: monospace; min-width: 36px; text-align: right; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; white-space: nowrap; }
+  .badge.family { background: #10b981; color: #fff; }
+  .badge.adults { background: #f59e0b; color: #1a1a2e; }
+  .badge.closed-badge { background: #ef4444; color: #fff; }
+  .ride-note { margin-top: 8px; padding-left: 28px; font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
+  /* Quick Picks */
+  .qp-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; }
+  .qp-header { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .qp-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }
+  .qp-filters { display: flex; gap: 8px; }
+  .qp-btn {
+    padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .qp-btn.active-family { border-color: #10b981; background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .qp-btn.active-adults { border-color: #f59e0b; background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .qp-row { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; gap: 10px; align-items: flex-start; }
+  .qp-park { font-size: 14px; flex-shrink: 0; width: 36px; }
+  .qp-rides { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .qp-tip { padding: 12px 18px; background: rgba(59,130,246,0.06); font-size: 12px; color: #94a3b8; line-height: 1.6; }
+  .qp-tip strong { color: #60a5fa; }
+
+  /* Timeline */
+  .tl-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; }
+  .tl-header { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .tl-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #f1f5f9; }
+  .tl-row { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; gap: 14px; align-items: flex-start; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .tl-dot.urgent { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+  .tl-dot.normal { background: #3b82f6; }
+  .tl-date { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; }
+  .tl-date.urgent { color: #fca5a5; }
+  .tl-date.normal { color: #e2e8f0; }
+  .tl-action { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
+  .tl-detail { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .tl-tip { padding: 14px 18px; background: rgba(16,185,129,0.06); font-size: 12px; color: #6ee7b7; line-height: 1.6; }
+  .tl-tip strong { color: #6ee7b7; }
+
+  .dinner-box {
+    margin-top: 20px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .dinner-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: #c4b5fd; margin-bottom: 4px; }
+  .dinner-text { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+  
+  /* Selection */
+  .ride-row.selected { background: rgba(139,92,246,0.12); border-left: 3px solid #a78bfa; }
+  .ride-row.at-limit:not(.selected) { opacity: 0.4; }
+  .sel-check {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.15);
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 13px; color: transparent; transition: all 0.15s; background: transparent; cursor: pointer;
+  }
+  .ride-row.selected .sel-check { background: #8b5cf6; border-color: #8b5cf6; color: #fff; }
+  .ride-row.at-limit:not(.selected) .sel-check { border-color: rgba(255,255,255,0.06); }
+  .sel-summary { padding: 10px 18px; background: rgba(139,92,246,0.1); border-bottom: 1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .sel-chip { display:inline-flex; align-items:center; gap:3px; padding:3px 10px; background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3); border-radius:20px; font-size:11px; color:#e0d4fc; cursor:pointer; }
+  .sel-chip:hover { background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4); }
+  .sel-chip .x { color:#94a3b8; margin-left:2px; }
+  .picks-card { background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:12px; overflow:hidden; margin-bottom:16px; }
+  .picks-header { padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .picks-title { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:#f1f5f9; }
+  .picks-park { padding:12px 18px; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .picks-park-name { font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:6px; }
+  .picks-ride { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:13px; color:#cbd5e1; }
+  .picks-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .picks-tag { font-size:10px; color:#94a3b8; background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:4px; }
+  .picks-empty { font-size:13px; color:#64748b; font-style:italic; }
+  .copy-box { padding:14px 18px; background:rgba(16,185,129,0.06); }
+  .copy-btn { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.12); color:#6ee7b7; font-weight:600; font-size:13px; cursor:pointer; }
+  .copy-btn:hover { background:rgba(16,185,129,0.2); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">LIGHTNING LANE PLANNER</div>
+  <div class="header-title">Schuster × Adamsky</div>
+  <div class="header-sub">Apr 25–29, 2026 · Saratoga Springs · 9–12 guests</div>
+  <div class="header-warn">⚠️ 3 kids under 35″ — all height-restricted rides need Rider Switch</div>
+</div>
+
+<div class="tabs" style="position:sticky;top:0;z-index:10;">
+  <button class="tab active" data-view="parks" onclick="switchView('parks')">📋 Parks</button>
+  <button class="tab" data-view="picks" onclick="switchView('picks')">✅ My Picks</button>
+  <button class="tab" data-view="quick" onclick="switchView('quick')">⚡ Recs</button>
+  <button class="tab" data-view="timeline" onclick="switchView('timeline')">📅 Dates</button>
+</div>
+
+<div class="content">
+  <!-- PARKS VIEW -->
+  <div id="view-parks">
+    <div class="hint">Tap ☐ to select rides · Tap ride name for details · Purple = selected</div>
+    <div id="parks-container"></div>
+  </div>
+
+  <!-- MY PICKS VIEW -->
+  <div id="view-picks" class="hidden">
+    <div id="picks-container"></div>
+  </div>
+
+  <!-- QUICK PICKS VIEW -->
+  <div id="view-quick" class="hidden">
+    <div class="qp-card">
+      <div class="qp-header">
+        <div class="qp-title">Recommended Pre-Bookings</div>
+        <div class="qp-filters">
+          <button class="qp-btn active-family" id="btn-family" onclick="switchQuickFilter('family')">👨‍👩‍👧 Whole Family</button>
+          <button class="qp-btn" id="btn-adults" onclick="switchQuickFilter('adults')">🎢 Adults (Rider Switch)</button>
+        </div>
+      </div>
+      <div id="qp-family">
+        <div class="qp-row"><span class="qp-park">🌿 AK</span><span class="qp-rides">Kilimanjaro Safaris → Na'vi River Journey → Zootopia</span></div>
+        <div class="qp-row"><span class="qp-park">🎬 HS</span><span class="qp-rides">Mickey & Minnie's Runaway Railway (T1) + Toy Story Mania + Beauty & the Beast (T2)</span></div>
+        <div class="qp-row"><span class="qp-park">🌐 EP</span><span class="qp-rides">Frozen Ever After (T1) + Spaceship Earth + Seas w/ Nemo (T2)</span></div>
+        <div class="qp-row"><span class="qp-park">🏰 MK</span><span class="qp-rides">Peter Pan's Flight (T1) + Pirates + Haunted Mansion (T2)</span></div>
+      </div>
+      <div id="qp-adults" class="hidden">
+        <div class="qp-row"><span class="qp-park">🌿 AK</span><span class="qp-rides">Flight of Passage (Single Pass) + Expedition Everest (Multi)</span></div>
+        <div class="qp-row"><span class="qp-park">🎬 HS</span><span class="qp-rides">Rise of the Resistance (Single) + Slinky Dog Dash (T1)</span></div>
+        <div class="qp-row"><span class="qp-park">🌐 EP</span><span class="qp-rides">Cosmic Rewind (Single Pass, ~$19-22) — book evening window ~6:30-7:30 PM for after Cape May dinner + Soarin' or Test Track (T1/T2)</span></div>
+        <div class="qp-row"><span class="qp-park">🏰 MK</span><span class="qp-rides">TRON or Mine Train (Single) + Space Mtn or Tiana's (T1)</span></div>
+      </div>
+      <div class="qp-tip"><strong>Pro tip:</strong> Book one LL with an early arrival window as a "burner" — use it immediately at park open to unlock additional bookings sooner. Haunted Mansion or Pirates at MK are great burner picks.</div>
+    </div>
+  </div>
+
+  <!-- TIMELINE VIEW -->
+  <div id="view-timeline" class="hidden">
+    <div class="tl-card">
+      <div class="tl-header"><div class="tl-title">Booking Timeline</div></div>
+      <div class="tl-row"><div class="tl-dot urgent"></div><div><div class="tl-date urgent">Apr 18 (Sat)</div><div class="tl-action">7 AM ET — Booking window opens for ALL park days</div><div class="tl-detail">Book Multi Pass + Single Pass for Apr 26-28. Do all 3 days at once!</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 25 (Sat)</div><div class="tl-action">Arrive Orlando, check in Saratoga Springs</div><div class="tl-detail">Review/modify LL selections in My Disney Experience app</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 26 (Sun)</div><div class="tl-action">Animal Kingdom — 8 AM</div><div class="tl-detail">Use first LL early, keep booking replacements</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 27 (Mon)</div><div class="tl-action">HS (Schusters AM) + EPCOT (Everyone PM) + 🌙 EPCOT evening (Adults)</div><div class="tl-detail">Cape May dinner @ 5 PM → Adults walk to EPCOT ~6:30 PM for Guardians Single Pass</div></div></div>
+      <div class="tl-row"><div class="tl-dot normal"></div><div><div class="tl-date normal">Apr 28 (Tue)</div><div class="tl-action">Magic Kingdom — 8 AM</div><div class="tl-detail">Last park day! Use LL aggressively.</div></div></div>
+      <div class="tl-tip"><strong>Key:</strong> As Saratoga Springs guests, you book 7 days before check-in. Since check-in is Apr 25, your window opens <strong>Apr 18 at 7:00 AM Eastern</strong>. Set an alarm — Tier 1 MK rides (Peter Pan, Jungle Cruise) book up fast!</div>
+    </div>
+  </div>
+
+  <!-- Pricing Summary -->
+  <div style="margin-top:20px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:14px 18px;">
+    <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:14px; color:#6ee7b7; margin-bottom:8px;">💰 Lightning Lane Pricing (Your Dates)</div>
+    <table style="width:100%; font-size:12px; color:#cbd5e1; border-collapse:collapse; font-family:'DM Sans',sans-serif;">
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+        <td style="padding:6px 4px; font-weight:600; color:#94a3b8;">Date</td>
+        <td style="padding:6px 4px; text-align:center; font-weight:600; color:#94a3b8;">Park</td>
+        <td style="padding:6px 4px; text-align:right; font-weight:600; color:#94a3b8;">Multi Pass</td>
+        <td style="padding:6px 4px; text-align:right; font-weight:600; color:#94a3b8;">Single Pass</td>
+      </tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+        <td style="padding:6px 4px;">Apr 26</td><td style="padding:6px 4px; text-align:center;">🌿 AK</td>
+        <td style="padding:6px 4px; text-align:right;">$22/pp</td><td style="padding:6px 4px; text-align:right;">~$16-19</td>
+      </tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+        <td style="padding:6px 4px;">Apr 27</td><td style="padding:6px 4px; text-align:center;">🎬 HS</td>
+        <td style="padding:6px 4px; text-align:right;">$32/pp</td><td style="padding:6px 4px; text-align:right;">~$20-25</td>
+      </tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+        <td style="padding:6px 4px;">Apr 27</td><td style="padding:6px 4px; text-align:center;">🌐 EP</td>
+        <td style="padding:6px 4px; text-align:right;">$26/pp</td><td style="padding:6px 4px; text-align:right; color:#fbbf24;">~$19-22 🌙</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px;">Apr 28</td><td style="padding:6px 4px; text-align:center;">🏰 MK</td>
+        <td style="padding:6px 4px; text-align:right;">$35/pp</td><td style="padding:6px 4px; text-align:right;">~$15-22</td>
+      </tr>
+    </table>
+    <div style="margin-top:8px; font-size:11px; color:#64748b; line-height:1.5;">
+      Prices per person, pre-tax. Confirmed from Disney Food Blog for your exact dates. Single Pass prices vary by attraction. 🌙 = Guardians evening option.
+      <br>⏰ Specific return time windows won't be visible until your booking window opens <strong style="color:#6ee7b7;">Apr 18 at 7 AM ET</strong> in the My Disney Experience app.
+    </div>
+  </div>
+
+  <!-- Dinner Note -->
+  <div class="dinner-box">
+    <div class="dinner-title">🍽️ Tue Apr 28 — Last Night Dinner</div>
+    <div class="dinner-text">✅ <strong>Boma — Flavors of Africa @ 6:35 PM</strong> · Animal Kingdom Lodge. African-inspired buffet with tons of options for kids and adventurous eaters alike. Tip: Leave Magic Kingdom by 11 AM, rest up at Saratoga Springs, then head to AKL. It's about a 15-min drive/bus — plan to leave by 6:00 PM.</div>
+  </div>
+</div>
+
+<script>
+const PARKS = [
+  {
+    id: "ak", name: "Animal Kingdom", date: "Sun, Apr 26", time: "8:00 – 11:00 AM",
+    group: "Everyone", icon: "🌿", hasTiers: false,
+    notes: "AK has NO tiers — pick any 3 from the Multi Pass list. With only 3 hours and little ones, focus on the top family rides. DINOSAUR is permanently closed. Consider skipping Multi Pass here and just rope-dropping — experts say AK is the weakest park for LL value.",
+    booking: "Book Apr 18 at 7 AM ET · Multi Pass: $22/person · Flight of Passage Single: ~$16-19/person",
+    familyCount: 7, adultCount: 3,
+    sections: [
+      { title: "Multi Pass — Pick any 3", cls: "notier", tier: "multi", rides: [
+        { name: "Kilimanjaro Safaris", h: "None", rec: "family", p: 1, note: "TOP PICK. Animals most active in early AM. Rope drop this OR grab an early LL window." },
+        { name: "Na'vi River Journey", h: "None", rec: "family", p: 2, note: "Beautiful boat ride, great for all ages. Can get long waits midday." },
+        { name: "Zootopia: Better Zoogether!", h: "None", rec: "family", p: 3, note: "New 3D show, still drawing crowds. Fun for kids." },
+        { name: "Festival of the Lion King", h: "None", rec: "family", p: 4, note: "Incredible show. Outdoor queue can be hot. Check showtimes." },
+        { name: "Feathered Friends in Flight!", h: "None", rec: "family", p: 5, note: "Bird show — check showtimes. Usually easy to get into standby." },
+        { name: "Finding Nemo: The Big Blue…and Beyond!", h: "None", rec: "family", p: 6, note: "Large theater, rarely needs LL. Save your pick." },
+        { name: "It's Tough to Be a Bug!", h: "None", rec: "family", p: 7, note: "⚠️ Can scare very young kids (dark, loud, bugs). Short waits." },
+        { name: "Expedition Everest", h: '44"', rec: "adults", p: 8, note: "Roller coaster — adults only via Rider Switch." },
+        { name: "Kali River Rapids", h: '38"', rec: "adults", p: 9, note: "You WILL get soaked. Adults only via Rider Switch. Early AM may be cold." },
+      ]},
+      { title: "💎 Single Pass — Separate Purchase", cls: "single", tier: "single", rides: [
+        { name: "Avatar Flight of Passage", h: '44"', rec: "adults", p: 1, note: "Use Rider Switch. Worth a Single Pass for adults — can also rope drop with short wait at 8 AM." },
+      ]},
+    ]
+  },
+  {
+    id: "hs", name: "Hollywood Studios", date: "Mon, Apr 27", time: "Morning (before Epcot)",
+    group: "Schusters only", icon: "🎬", hasTiers: true,
+    notes: "Schusters only. Primary goal is Beauty and the Beast. Rock 'n' Roller Coaster is CLOSED for Muppets refurb. If Schusters have kids under 35\", most big rides are out — focus on shows and Toy Story Mania.",
+    booking: "Book Apr 18 at 7 AM ET · Multi Pass: $32/person · Rise of Resistance Single: ~$20-25/person",
+    familyCount: 5, adultCount: 5,
+    sections: [
+      { title: "⚡ Tier 1 — Pick 1", cls: "t1", tier: "t1", rides: [
+        { name: "Mickey & Minnie's Runaway Railway", h: "None", rec: "family", p: 1, note: "TOP PICK for Tier 1. No height req, fun for everyone!" },
+        { name: "Slinky Dog Dash", h: '38"', rec: "adults", p: 2, note: "Great coaster but 38\" min. Rider Switch." },
+        { name: "Millennium Falcon: Smugglers Run", h: '38"', rec: "adults", p: 3, note: "38\" min. Rider Switch available." },
+      ]},
+      { title: "Tier 2 — Pick up to 2 (or all 3)", cls: "t2", tier: "t2", rides: [
+        { name: "Toy Story Mania!", h: "None", rec: "family", p: 1, note: "Fun for all ages! Interactive shooting ride. Can get long waits." },
+        { name: "Beauty and the Beast Live on Stage", h: "None", rec: "family", p: 2, note: "🎯 YOUR PRIMARY GOAL. Check showtimes — may not need LL." },
+        { name: "Frozen Sing-Along Celebration", h: "None", rec: "family", p: 3, note: "Fun show, kids will love it. Large theater." },
+        { name: "The Little Mermaid – A Musical Adventure", h: "None", rec: "family", p: 4, note: "Another great show for little ones." },
+        { name: "Indiana Jones Epic Stunt Spectacular", h: "None", rec: "family", p: 5, note: "Exciting stunt show. Loud — gauge your toddlers." },
+        { name: "Alien Swirling Saucers", h: '32"', rec: "adults", p: 6, note: "32\" min — under-35\" kids can't ride." },
+        { name: "Star Tours", h: '40"', rec: "adults", p: 7, note: "40\" min. Motion simulator." },
+        { name: "Tower of Terror", h: '40"', rec: "adults", p: 8, note: "40\" min. Intense drop ride." },
+      ]},
+      { title: "💎 Single Pass — Separate Purchase", cls: "single", tier: "single", rides: [
+        { name: "Star Wars: Rise of the Resistance", h: '40"', rec: "adults", p: 1, note: "Best ride at HS but 40\" min. Rider Switch available." },
+      ]},
+    ]
+  },
+  {
+    id: "ep", name: "EPCOT", date: "Mon, Apr 27", time: "12:00 – 3:00 PM",
+    group: "Everyone", icon: "🌐", hasTiers: true,
+    notes: "Only 3 hours here (12–3 PM). Flower & Garden Festival will be happening — enjoy the topiaries! Experts say EPCOT is manageable without LL, but Frozen Ever After and Remy get long waits. With limited time, pre-booking is smart. 🌙 EVENING OPTION: Adults may return after Cape May dinner (~6:30 PM) — Beach Club is a 5-min walk to EPCOT's back entrance. Book a Guardians Single Pass with an evening return window!",
+    booking: "Book Apr 18 at 7 AM ET · Multi Pass: $26/person · Guardians Single Pass: ~$19-22/person",
+    familyCount: 5, adultCount: 4,
+    sections: [
+      { title: "⚡ Tier 1 — Pick 1", cls: "t1", tier: "t1", rides: [
+        { name: "Frozen Ever After", h: "None", rec: "family", p: 1, note: "🎯 TOP PICK. Kids will love it. Long lines all day." },
+        { name: "Remy's Ratatouille Adventure", h: "None", rec: "family", p: 2, note: "Trackless ride, great for families. Books up fast!" },
+        { name: "Test Track", h: '40"', rec: "adults", p: 3, note: "40\" min. Design your car then race it." },
+      ]},
+      { title: "Tier 2 — Pick up to 2 (or all 3)", cls: "t2", tier: "t2", rides: [
+        { name: "Spaceship Earth", h: "None", rec: "family", p: 1, note: "The big ball! Gentle ride, iconic. Moderate waits." },
+        { name: "Living with the Land", h: "None", rec: "family", p: 2, note: "Relaxing boat ride through greenhouses. Short waits usually." },
+        { name: "The Seas with Nemo & Friends", h: "None", rec: "family", p: 3, note: "Gentle clamshell ride + huge aquarium after. Kids love it." },
+        { name: "Turtle Talk with Crush", h: "None", rec: "family", p: 4, note: "Interactive show — great for little ones! Usually short waits." },
+        { name: "Journey Into Imagination with Figment", h: "None", rec: "family", p: 5, note: "Classic ride. Very short waits — skip the LL." },
+        { name: "Soarin' Around the World", h: '40"', rec: "adults", p: 6, note: "40\" min. Hang glider sim — amazing but adults only." },
+        { name: "Mission: SPACE", h: '40\"/44\"', rec: "adults", p: 7, note: "Green (mild) = 40\", Orange (intense) = 44\". Adults only." },
+      ]},
+      { title: "💎 Single Pass — Separate Purchase", cls: "single", tier: "single", rides: [
+        { name: "Guardians of the Galaxy: Cosmic Rewind", h: '42"', rec: "adults", p: 1, note: "🌙 EVENING PLAN: 42\" min, adults only. ~$19-22/person. After Cape May dinner (5 PM), walk to EPCOT's International Gateway (~5 min from Beach Club). Book a return window for 6:30-7:30 PM when you purchase on Apr 18. Guardians can sell out on busy days — book early! One of WDW's best rides." },
+      ]},
+    ]
+  },
+  {
+    id: "mk", name: "Magic Kingdom", date: "Tue, Apr 28", time: "8:00 – 11:00 AM",
+    group: "Everyone", icon: "🏰", hasTiers: true,
+    notes: "Your LAST park day — make it count! Big Thunder Mountain is CLOSED (reopens May 3). With 3 hours and Early Entry at 8 AM, rope drop a Tier 1 ride then use LL for the rest. MK is where Lightning Lane Multi Pass has the MOST value.",
+    booking: "Book Apr 18 at 7 AM ET — MK Tier 1 books fast! · Multi Pass: $35/person · TRON Single: ~$20-22 · Mine Train Single: ~$15-18",
+    familyCount: 9, adultCount: 5,
+    sections: [
+      { title: "⚡ Tier 1 — Pick 1", cls: "t1", tier: "t1", rides: [
+        { name: "Peter Pan's Flight", h: "None", rec: "family", p: 1, note: "🎯 TOP PICK. Classic dark ride, always long lines. Perfect for little ones." },
+        { name: "Jungle Cruise", h: "None", rec: "family", p: 2, note: "Boat ride with dad jokes. All ages. Also a great Tier 1 pick." },
+        { name: "Tiana's Bayou Adventure", h: '40"', rec: "adults", p: 3, note: "40\" min. Log flume — Rider Switch." },
+        { name: "Space Mountain", h: '44"', rec: "adults", p: 4, note: "44\" min. Classic coaster in the dark." },
+        { name: "Big Thunder Mountain Railroad", h: '38"', rec: "closed", p: 5, note: "⛔ CLOSED until May 3, 2026." },
+      ]},
+      { title: "Tier 2 — Pick up to 2 (or all 3)", cls: "t2", tier: "t2", rides: [
+        { name: "Pirates of the Caribbean", h: "None", rec: "family", p: 1, note: "Classic boat ride. Good 'burner' LL — use early to unlock more picks." },
+        { name: "Haunted Mansion", h: "None", rec: "family", p: 2, note: "Iconic. Another great 'burner' LL — use early to unlock more picks." },
+        { name: "Buzz Lightyear's Space Ranger Spin", h: "None", rec: "family", p: 3, note: "Just reopened from refurb — new vehicles & effects! Higher demand." },
+        { name: "Many Adventures of Winnie the Pooh", h: "None", rec: "family", p: 4, note: "Sweet dark ride. Perfect for toddlers." },
+        { name: "Dumbo the Flying Elephant", h: "None", rec: "family", p: 5, note: "Classic spinner. Indoor play area while waiting!" },
+        { name: "\"it's a small world\"", h: "None", rec: "family", p: 6, note: "The classic. Usually short waits — may not need LL." },
+        { name: "Under the Sea ~ Journey of The Little Mermaid", h: "None", rec: "family", p: 7, note: "Gentle clamshell ride. Short waits." },
+        { name: "Mad Tea Party", h: "None", rec: "family", p: 8, note: "Spinning teacups! Usually short waits." },
+        { name: "Monsters Inc. Laugh Floor", h: "None", rec: "family", p: 9, note: "Interactive comedy show. Rarely needs LL." },
+        { name: "Tomorrowland Speedway", h: '32\"/54\"', rec: "adults", p: 10, note: "32\" to ride (under-35\" kids can't). 54\" to drive alone." },
+        { name: "The Barnstormer", h: '35"', rec: "adults", p: 11, note: "35\" min — your under-35\" kids just miss this one." },
+      ]},
+      { title: "💎 Single Pass — Separate Purchase", cls: "single", tier: "single", rides: [
+        { name: "Seven Dwarfs Mine Train", h: '38"', rec: "adults", p: 1, note: "38\" min. Best family coaster at MK. Consider rope-dropping instead." },
+        { name: "TRON Lightcycle / Run", h: '48"', rec: "adults", p: 2, note: "48\" min. Thrilling launch coaster. Adults only." },
+      ]},
+    ]
+  },
+];
+
+// State
+let openParks = { ak: true };
+let currentView = 'parks';
+let quickFilter = 'family';
+
+// Selection state: { parkId: { multi: [name,...], single: [name,...] } }
+let selections = {};
+PARKS.forEach(p => { selections[p.id] = { multi: [], single: [] }; });
+try { const s = JSON.parse(localStorage.getItem('ll-sel')); if (s) selections = s; } catch(e) {}
+function saveSel() { try { localStorage.setItem('ll-sel', JSON.stringify(selections)); } catch(e) {} }
+
+function getSelLimits(park) {
+  const sel = selections[park.id];
+  let t1=0, t2=0;
+  if (park.hasTiers) {
+    park.sections.forEach(sec => sec.rides.forEach(r => {
+      if (sel.multi.includes(r.name)) { if (sec.tier==='t1') t1++; if (sec.tier==='t2') t2++; }
+    }));
+  }
+  return { t1, t2, multi: sel.multi.length, single: sel.single.length };
+}
+
+function isAtLimit(park, sec, name) {
+  const sel = selections[park.id], lim = getSelLimits(park);
+  const isSel = sec.tier==='single' ? sel.single.includes(name) : sel.multi.includes(name);
+  if (isSel) return false;
+  if (sec.tier==='single') return lim.single >= 2;
+  if (park.hasTiers) { if (lim.multi >= 3) return true; if (sec.tier==='t1' && lim.t1 >= 1) return true; }
+  else { if (lim.multi >= 3) return true; }
+  return false;
+}
+
+function toggleSel(parkId, tier, name, ev) {
+  ev.stopPropagation();
+  const list = tier==='single' ? 'single' : 'multi';
+  const sel = selections[parkId];
+  const idx = sel[list].indexOf(name);
+  if (idx > -1) sel[list].splice(idx, 1); else sel[list].push(name);
+  saveSel(); renderParks();
+}
+
+function removeSel(parkId, list, name) {
+  const idx = selections[parkId][list].indexOf(name);
+  if (idx > -1) { selections[parkId][list].splice(idx, 1); saveSel(); renderParks(); renderMyPicks(); }
+}
+
+function copySelections() {
+  let t = "\u{1F3A2} LIGHTNING LANE PICKS — Schuster × Adamsky\nApr 25-29, 2026\n\n";
+  PARKS.forEach(p => {
+    const sel = selections[p.id], picks = [...sel.multi, ...sel.single];
+    t += p.icon + " " + p.name + " (" + p.date + ")\n";
+    if (!picks.length) t += "  (none selected)\n";
+    else picks.forEach(n => t += "  \u2705 " + n + "\n");
+    t += "\n";
+  });
+  t += "\u{1F4C5} Book Apr 18 at 7 AM ET in My Disney Experience app!";
+  navigator.clipboard.writeText(t).then(() => {
+    const m = document.getElementById('copy-msg');
+    if (m) { m.style.display='block'; setTimeout(()=>m.style.display='none', 3000); }
+  }).catch(()=>{});
+}
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  ['parks','picks','quick','timeline'].forEach(v => document.getElementById('view-'+v).classList.toggle('hidden', v !== view));
+  if (view === 'picks') renderMyPicks();
+}
+
+function switchQuickFilter(filter) {
+  quickFilter = filter;
+  document.getElementById('qp-family').classList.toggle('hidden', filter !== 'family');
+  document.getElementById('qp-adults').classList.toggle('hidden', filter !== 'adults');
+  const bf = document.getElementById('btn-family');
+  const ba = document.getElementById('btn-adults');
+  bf.className = 'qp-btn' + (filter === 'family' ? ' active-family' : '');
+  ba.className = 'qp-btn' + (filter === 'adults' ? ' active-adults' : '');
+}
+
+function togglePark(id) {
+  openParks[id] = !openParks[id];
+  renderParks();
+}
+
+function toggleRide(el) {
+  const note = el.querySelector('.ride-note');
+  if (note) { el.classList.toggle('expanded'); note.classList.toggle('hidden'); }
+}
+
+function renderMyPicks() {
+  const c = document.getElementById('picks-container');
+  if (!c) return;
+  const any = PARKS.some(p => selections[p.id].multi.length + selections[p.id].single.length > 0);
+  c.innerHTML = '<div class="picks-card"><div class="picks-header"><div class="picks-title">✅ My Lightning Lane Picks</div></div>' +
+    PARKS.map(park => {
+      const sel = selections[park.id];
+      const picks = [...sel.multi.map(n=>({name:n,type:'multi'})), ...sel.single.map(n=>({name:n,type:'single'}))];
+      let tierLabel = (pick) => {
+        if (pick.type==='single') return 'Single Pass';
+        if (!park.hasTiers) return 'Multi Pass';
+        let label = 'Multi Pass';
+        park.sections.forEach(sec => sec.rides.forEach(r => {
+          if (r.name===pick.name) { if(sec.tier==='t1') label='Tier 1'; if(sec.tier==='t2') label='Tier 2'; }
+        }));
+        return label;
+      };
+      return '<div class="picks-park"><div class="picks-park-name">'+park.icon+' '+park.name+' — '+park.date+'</div>' +
+        (picks.length===0 ? '<div class="picks-empty">No rides selected yet — go to Parks tab to pick</div>' :
+          picks.map(p => {
+            const tl = tierLabel(p);
+            const dc = p.type==='single'?'#f59e0b':tl==='Tier 1'?'#8b5cf6':'#3b82f6';
+            return '<div class="picks-ride"><span class="picks-dot" style="background:'+dc+'"></span>'+p.name+' <span class="picks-tag">'+tl+'</span></div>';
+          }).join('')) + '</div>';
+    }).join('') +
+    '<div class="copy-box"><button class="copy-btn" onclick="copySelections()">📋 Copy Selections to Clipboard</button><div id="copy-msg" style="font-size:11px;color:#6ee7b7;margin-top:6px;text-align:center;display:none;">Copied! Paste into a text or group chat.</div></div></div>';
+}
+
+const prioColors = { 1: '#10b981', 2: '#3b82f6', 3: '#8b5cf6', 4: '#6b7280', 5: '#6b7280' };
+
+function renderParks() {
+  const container = document.getElementById('parks-container');
+  container.innerHTML = PARKS.map(park => {
+    const isOpen = openParks[park.id];
+    const sel = selections[park.id];
+    return `
+      <div class="park-card">
+        <div class="park-header ${isOpen ? 'active' : ''}" onclick="togglePark('${park.id}')">
+          <span class="park-icon">${park.icon}</span>
+          <div class="park-info">
+            <div class="park-name">${park.name}${(sel.multi.length+sel.single.length)>0?' <span style="color:#a78bfa;font-size:14px;">('+( sel.multi.length+sel.single.length)+' picked)</span>':''}</div>
+            <div class="park-meta">${park.date} · ${park.time} · <span class="group">${park.group}</span></div>
+          </div>
+          <div class="stat"><div class="stat-num green">${park.familyCount}</div><div class="stat-label">ALL AGES</div></div>
+          <div class="stat"><div class="stat-num amber">${park.adultCount}</div><div class="stat-label">RIDER SW</div></div>
+          <span class="chevron ${isOpen ? 'open' : ''}">▼</span>
+        </div>
+        ${isOpen ? `
+        <div class="park-body">
+          ${(sel.multi.length + sel.single.length > 0) ? `
+          <div class="sel-summary">
+            <span style="font-size:11px;font-weight:700;color:#a78bfa;font-family:'Outfit',sans-serif;letter-spacing:0.5px;">YOUR PICKS:</span>
+            ${[...sel.multi.map(n=>({n,l:'multi'})),...sel.single.map(n=>({n,l:'single'}))].map(x =>
+              '<span class="sel-chip" onclick="removeSel(\''+park.id+'\',\''+x.l+'\',\''+x.n.replace(/'/g,"\\\\'")+'\')">'+x.n+'<span class="x">×</span></span>'
+            ).join('')}
+            <span style="font-size:11px;color:#64748b;margin-left:auto;">${sel.multi.length}/3 Multi · ${sel.single.length}/2 Single</span>
+          </div>` : ''}
+          <div class="strategy-box">
+            <div class="strategy-label">💡 STRATEGY</div>
+            <div class="strategy-text">${park.notes}</div>
+          </div>
+          <div class="booking-box">📅 ${park.booking}</div>
+          ${park.sections.map(sec => `
+            <div class="tier-header ${sec.cls}">${sec.title}</div>
+            ${sec.rides.map(r => {
+              const isSel = sec.tier === 'single' ? sel.single.includes(r.name) : sel.multi.includes(r.name);
+              const atLim = isAtLimit(park, sec, r.name);
+              const closed = r.rec === 'closed';
+              const esc = r.name.replace(/'/g, "\\'");
+              return `
+              <div class="ride-row ${closed ? 'closed' : ''} ${isSel ? 'selected' : ''} ${atLim && !isSel ? 'at-limit' : ''}">
+                <div class="ride-top">
+                  ${!closed ? `<span class="sel-check" onclick="toggleSel('${park.id}','${sec.tier}','${esc}',event)">${isSel ? '✓' : ''}</span>` : ''}
+                  ${r.p <= 5 ? `<span class="priority" style="background:${prioColors[r.p] || '#6b7280'}">${r.p}</span>` : ''}
+                  <span class="ride-name" onclick="toggleRide(this.closest('.ride-row'))">${r.name}</span>
+                  <span class="ride-height">${r.h}</span>
+                  <span class="badge ${r.rec === 'family' ? 'family' : r.rec === 'adults' ? 'adults' : 'closed-badge'}">${r.rec === 'family' ? 'ALL AGES' : r.rec === 'adults' ? 'RIDER SWITCH' : 'CLOSED'}</span>
+                </div>
+                <div class="ride-note hidden">${r.note}</div>
+              </div>`;
+            }).join('')}
+          `).join('')}
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+renderParks();
+renderMyPicks();
+</script>
+</body>
+</html>
