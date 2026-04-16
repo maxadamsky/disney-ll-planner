@@ -594,10 +594,6 @@ function renderParks() {
             ).join('')}
             <span style="font-size:11px;color:#64748b;margin-left:auto;">${sel.multi.length}/3 Multi · ${sel.single.length}/2 Single</span>
           </div>` : ''}
-          <div class="strategy-box">
-            <div class="strategy-label">💡 STRATEGY</div>
-            <div class="strategy-text">${park.notes}</div>
-          </div>
           <div class="booking-box">📅 ${park.booking}</div>
           ${park.sections.map(sec => `
             <div class="tier-header ${sec.cls}">${sec.title}</div>
